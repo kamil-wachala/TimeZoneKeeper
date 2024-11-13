@@ -1,13 +1,24 @@
+using System.Runtime.Versioning;
+
 namespace Kapps.TimeZoneKeeper
 {
-    public class Program
+    [SupportedOSPlatform("windows")]
+    public static class Program
     {
+        public const string ServiceName = "KappsTimeZoneWorker";
+
         public static void Main(string[] args)
         {
-            var builder = Host.CreateApplicationBuilder(args);
-            builder.Services.AddHostedService<Worker>();
+            var host = Host.CreateDefaultBuilder(args)
+                .UseWindowsService(options => {
+                    options.ServiceName = ServiceName;
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.AddHostedService<TimeZoneWorker>();
+                })
+                .Build();
 
-            var host = builder.Build();
             host.Run();
         }
     }
